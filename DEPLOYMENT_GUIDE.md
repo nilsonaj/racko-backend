@@ -45,7 +45,7 @@ git push -u origin main
 6. Click "Create Web Service"
 7. Wait for deployment (2-3 minutes)
 8. **Copy your URL!** It will be something like: `https://racko-game-xxxx.onrender.com`
-
+https://racko-game.onrender.com
 ---
 
 ## Part 2: Deploy Frontend to Cloudflare Pages

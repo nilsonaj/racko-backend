@@ -35,10 +35,13 @@ io.on('connection', (socket) => {
   // Create new game
   socket.on('createGame', (data) => {
     const { roomCode, gameData } = data;
-    games.set(roomCode, gameData);
+    // Deep clone to prevent reference issues
+    const clonedGame = JSON.parse(JSON.stringify(gameData));
+    games.set(roomCode, clonedGame);
     socket.join(roomCode);
-    socket.emit('gameCreated', { roomCode, gameData });
+    socket.emit('gameCreated', { roomCode, gameData: clonedGame });
     console.log(`Game created: ${roomCode}`);
+    console.log(`Players:`, clonedGame.players.map(p => ({ name: p.name, rack: p.rack })));
   });
 
   // Join existing game
@@ -56,22 +59,27 @@ io.on('connection', (socket) => {
       return;
     }
 
-    game.players.push(playerData);
-    games.set(roomCode, game);
+    // Deep clone player data to prevent reference issues
+    const clonedPlayer = JSON.parse(JSON.stringify(playerData));
+    game.players.push(clonedPlayer);
+    const clonedGame = JSON.parse(JSON.stringify(game));
+    games.set(roomCode, clonedGame);
     socket.join(roomCode);
     
     // Notify all players in room
-    io.to(roomCode).emit('gameUpdate', game);
+    io.to(roomCode).emit('gameUpdate', clonedGame);
     console.log(`Player joined: ${roomCode}`);
   });
 
   // Update game state
   socket.on('updateGame', (data) => {
     const { roomCode, gameData } = data;
-    games.set(roomCode, gameData);
+    // Deep clone to prevent reference issues
+    const clonedGame = JSON.parse(JSON.stringify(gameData));
+    games.set(roomCode, clonedGame);
     
     // Broadcast to all players in room
-    io.to(roomCode).emit('gameUpdate', gameData);
+    io.to(roomCode).emit('gameUpdate', clonedGame);
   });
 
   // Get game state
